@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>华侨港澳台联招分数线查询工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .filter-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .results-count strong {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .rank-top {
+            background: #ffd700;
+            color: #8b6914;
+        }
+
+        .rank-high {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .rank-medium {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .rank-normal {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .score-highlight {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 华侨港澳台联招分数线查询工具</h1>
+            <p>全国联招院校录取分数线查询系统</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>科类</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="category" value="理科" checked>
+                            <span>理科</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="category" value="文科">
+                            <span>文科</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label for="year">年份</label>
+                    <select id="year">
+                        <option value="2024">2024年</option>
+                        <!-- 更多年份将在这里动态加载 -->
+                    </select>
+                </div>
+
+                <div class="filter-group" style="flex: 2;">
+                    <label for="search">搜索学校</label>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search" placeholder="输入学校名称进行搜索...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-count">
+                    共找到 <strong id="count">0</strong> 所院校
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <p>加载中...</p>
+            </div>
+
+            <div id="table-container" class="table-container">
+                <table id="results-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>院校代码</th>
+                            <th>院校名称</th>
+                            <th>录取人数</th>
+                            <th>最低分</th>
+                            <th>最低排位</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <h3>未找到匹配的院校</h3>
+                <p>请尝试其他搜索关键词</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>数据来源：全国联招办公室 | 仅供参考，以官方发布为准</p>
+        </div>
+    </div>
+
+    <script>
+        // 全局数据存储
+        let allData = [];
+        let currentData = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupEventListeners();
+        });
+
+        // 加载数据
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const tableContainer = document.getElementById('table-container');
+            
+            loading.style.display = 'block';
+            tableContainer.style.display = 'none';
+
+            try {
+                // 获取当前选择的年份和科类
+                const year = document.getElementById('year').value;
+                const category = document.querySelector('input[name="category"]:checked').value;
+                
+                // 构建文件名
+                const fileName = `${year}-${category}.json`;
+                
+                // 加载JSON数据
+                const response = await fetch(fileName);
+                
+                if (!response.ok) {
+                    throw new Error('数据文件不存在');
+                }
+                
+                const jsonData = await response.json();
+                allData = jsonData.data;
+                currentData = allData;
+                
+                renderTable(currentData);
+                updateCount(currentData.length);
+                
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                const year = document.getElementById('year').value;
+                const category = document.querySelector('input[name="category"]:checked').value;
+                alert(`暂无${year}年${category}数据\n\n请确保数据文件存在：${year}-${category}.json`);
+                currentData = [];
+                renderTable([]);
+            } finally {
+                loading.style.display = 'none';
+                tableContainer.style.display = 'block';
+            }
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 科类切换
+            document.querySelectorAll('input[name="category"]').forEach(radio => {
+                radio.addEventListener('change', loadData);
+            });
+
+            // 年份切换
+            document.getElementById('year').addEventListener('change', loadData);
+
+            // 搜索
+            const searchInput = document.getElementById('search');
+            searchInput.addEventListener('input', function(e) {
+                const keyword = e.target.value.trim().toLowerCase();
+                
+                if (keyword === '') {
+                    currentData = allData;
+                } else {
+                    currentData = allData.filter(item => 
+                        item.院校名称.toLowerCase().includes(keyword) ||
+                        item.院校代码.includes(keyword)
+                    );
+                }
+                
+                renderTable(currentData);
+                updateCount(currentData.length);
+            });
+        }
+
+        // 渲染表格
+        function renderTable(data) {
+            const tbody = document.getElementById('results-body');
+            const emptyState = document.getElementById('empty-state');
+            const tableContainer = document.getElementById('table-container');
+            
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            tableContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // 根据排名设置徽章样式
+                let rankClass = 'rank-normal';
+                if (item.序号 <= 10) rankClass = 'rank-top';
+                else if (item.序号 <= 30) rankClass = 'rank-high';
+                else if (item.序号 <= 60) rankClass = 'rank-medium';
+                
+                row.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${item.序号}</span></td>
+                    <td>${item.院校代码}</td>
+                    <td><strong>${item.院校名称}</strong></td>
+                    <td>${item.录取人数}</td>
+                    <td><span class="score-highlight">${item.最低分}</span></td>
+                    <td>${item.最低排位}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新计数
+        function updateCount(count) {
+            document.getElementById('count').textContent = count;
+        }
+    </script>
+</body>
+</html>
