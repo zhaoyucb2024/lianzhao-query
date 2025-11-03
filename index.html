@@ -139,6 +139,20 @@
             font-size: 20px;
         }
 
+        .search-tip {
+            background: #e8eaf6;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: #5c6bc0;
+            font-size: 14px;
+        }
+
+        .search-tip strong {
+            color: #3f51b5;
+        }
+
         .table-container {
             overflow-x: auto;
             border-radius: 8px;
@@ -312,6 +326,10 @@
                 </div>
             </div>
 
+            <div id="search-tip" class="search-tip" style="display: none;">
+                💡 <strong>提示：</strong>当前仅展示前5所院校，请在上方搜索框输入学校名称查询更多院校信息
+            </div>
+
             <div id="loading" class="loading" style="display: none;">
                 <p>加载中...</p>
             </div>
@@ -345,6 +363,7 @@
 
         <div class="footer">
             <p>数据来源：全国联招办公室 | 仅供参考，以官方发布为准</p>
+            <p style="margin-top: 10px;">关注更多资讯，请关注公众号：<a href="https://www.orviews.com/" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">景于行港澳台华侨联考</a></p>
         </div>
     </div>
 
@@ -352,6 +371,7 @@
         // 全局数据存储
         let allData = [];
         let currentData = [];
+        let isSearchActive = false; // 标记是否正在搜索
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -384,10 +404,16 @@
                 
                 const jsonData = await response.json();
                 allData = jsonData.data;
-                currentData = allData;
                 
-                renderTable(currentData);
-                updateCount(currentData.length);
+                // 重置搜索状态
+                isSearchActive = false;
+                document.getElementById('search').value = '';
+                
+                // 初始只显示前5条
+                currentData = allData.slice(0, 5);
+                
+                renderTable(currentData, false); // false表示显示搜索提示
+                updateCount(allData.length, currentData.length);
                 
             } catch (error) {
                 console.error('加载数据失败:', error);
@@ -395,7 +421,7 @@
                 const category = document.querySelector('input[name="category"]:checked').value;
                 alert(`暂无${year}年${category}数据\n\n请确保数据文件存在：${year}-${category}.json`);
                 currentData = [];
-                renderTable([]);
+                renderTable([], true);
             } finally {
                 loading.style.display = 'none';
                 tableContainer.style.display = 'block';
@@ -418,35 +444,50 @@
                 const keyword = e.target.value.trim().toLowerCase();
                 
                 if (keyword === '') {
-                    currentData = allData;
+                    // 清空搜索，回到初始状态，只显示前5条
+                    isSearchActive = false;
+                    currentData = allData.slice(0, 5);
+                    renderTable(currentData, false);
+                    updateCount(allData.length, currentData.length);
                 } else {
+                    // 开始搜索
+                    isSearchActive = true;
                     currentData = allData.filter(item => 
                         item.院校名称.toLowerCase().includes(keyword) ||
                         item.院校代码.includes(keyword)
                     );
+                    renderTable(currentData, true);
+                    updateCount(allData.length, currentData.length);
                 }
-                
-                renderTable(currentData);
-                updateCount(currentData.length);
             });
         }
 
         // 渲染表格
-        function renderTable(data) {
+        function renderTable(data, showAll) {
             const tbody = document.getElementById('results-body');
             const emptyState = document.getElementById('empty-state');
             const tableContainer = document.getElementById('table-container');
+            const searchTip = document.getElementById('search-tip');
             
             tbody.innerHTML = '';
             
-            if (data.length === 0) {
+            if (data.length === 0 && isSearchActive) {
+                // 搜索无结果
                 tableContainer.style.display = 'none';
                 emptyState.style.display = 'block';
+                searchTip.style.display = 'none';
                 return;
             }
             
             tableContainer.style.display = 'block';
             emptyState.style.display = 'none';
+            
+            // 显示搜索提示（只在初始状态或清空搜索时显示）
+            if (!showAll && data.length > 0) {
+                searchTip.style.display = 'block';
+            } else {
+                searchTip.style.display = 'none';
+            }
             
             data.forEach(item => {
                 const row = document.createElement('tr');
@@ -471,8 +512,13 @@
         }
 
         // 更新计数
-        function updateCount(count) {
-            document.getElementById('count').textContent = count;
+        function updateCount(total, showing) {
+            const countElement = document.getElementById('count');
+            if (isSearchActive) {
+                countElement.innerHTML = `<span style="color: #667eea;">${showing}</span> / ${total}`;
+            } else {
+                countElement.textContent = total;
+            }
         }
     </script>
 </body>
