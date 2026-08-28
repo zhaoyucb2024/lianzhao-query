@@ -430,6 +430,9 @@ var CONFIG = {
   YEARS: [2025,2024,2023,2022,2021,2020],   // 兜底年份；若存在 manifest.json 会以它为准
   MANIFEST: "manifest.json",
   SCHOOL_PAGE: null,               // 院校详情页路径；跑 build.py 后会自动改成 "school/{code}.html"
+  VISIBLE_ROWS: 5,                 // 框内一次露出几所（电脑）
+  VISIBLE_ROWS_MOBILE: 3,          // 框内一次露出几所（手机）
+  PEEK: 0.42,                      // 再露出下一所的 42%，让人一眼知道下面还有
   LOCK_COPY: true,                 // 禁止在表格里框选复制（挡不住看源码，只挡随手复制）
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
   UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
@@ -711,9 +714,25 @@ function render(){
 }
 
 /* 滚动阅览框：内容比框高就显示渐隐和提示，滑到底渐隐淡出 */
+/* 框高 = 表头 + N 行 + 下一行的一小截。按实际行高量，手机上校名换行也不会切歪 */
+function fitBox(){
+  var n = window.matchMedia("(max-width:700px)").matches
+        ? CONFIG.VISIBLE_ROWS_MOBILE : CONFIG.VISIBLE_ROWS;
+  var rows = elRows.children;
+  if (rows.length <= n){ elWrap.style.maxHeight = ""; return; }
+  var table = elWrap.querySelector("table");
+  if (!table) return;
+  var base = table.getBoundingClientRect().top;
+  var solid = rows[n - 1].getBoundingClientRect().bottom - base;
+  var peek = rows[n].getBoundingClientRect().height * CONFIG.PEEK;
+  elWrap.style.maxHeight = Math.round(solid + peek) + "px";
+}
+
 function updateBox(count){
   elWrap.scrollTop = 0;
+  elWrap.style.maxHeight = "";
   requestAnimationFrame(function(){
+    fitBox();
     var scrollable = elWrap.scrollHeight - elWrap.clientHeight > 4;
     elBox.classList.toggle("no-scroll", !scrollable);
     elBox.classList.remove("at-end");
