@@ -286,13 +286,15 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
   .masthead{padding:26px 0 18px}
   thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .tablewrap{--box-h:400px}
-  tbody tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:13px 14px;border-bottom:1px solid var(--rule)}
+  tbody tr{display:grid;grid-template-columns:1fr auto;gap:1px 12px;padding:10px 14px;border-bottom:1px solid var(--rule)}
   tbody tr:last-child{border-bottom:0}
   tbody td{display:block;padding:0;border:0}
   td.seq{display:none}
-  td.school{grid-column:1;grid-row:1}
-  td.score{grid-column:2;grid-row:1;text-align:right;font-size:20px}
-  td.rail{grid-column:1/-1;grid-row:2;padding:6px 0 4px!important;width:auto}
+  td.school{grid-column:1;grid-row:1;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  td.school .nm{line-height:1.35}
+  td.school .cd{margin-top:0;font-size:11.5px;white-space:nowrap}
+  td.score{grid-column:2;grid-row:1;text-align:right;font-size:19px;line-height:1.25}
+  td.rail{grid-column:1/-1;grid-row:2;padding:5px 0 3px!important;width:auto}
   td.rank,td.enroll{grid-row:3;font-size:12.5px;color:var(--ink-3);text-align:left}
   td.rank{grid-column:1}
   td.enroll{grid-column:2;text-align:right}
@@ -432,7 +434,8 @@ var CONFIG = {
   SCHOOL_PAGE: null,               // 院校详情页路径；跑 build.py 后会自动改成 "school/{code}.html"
   VISIBLE_ROWS: 5,                 // 框内一次露出几所（电脑）
   VISIBLE_ROWS_MOBILE: 3,          // 框内一次露出几所（手机）
-  PEEK: 0.42,                      // 再露出下一所的 42%，让人一眼知道下面还有
+  PEEK: 0.42,
+  AUTO_ANCHOR: true,               // 用户一开始滑框，页面自动把框顶到上沿（广告随之露出）                      // 再露出下一所的 42%，让人一眼知道下面还有
   LOCK_COPY: true,                 // 禁止在表格里框选复制（挡不住看源码，只挡随手复制）
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
   UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
@@ -730,6 +733,7 @@ function fitBox(){
 
 function updateBox(count){
   elWrap.scrollTop = 0;
+  anchorDone = false; anchorTries = 0;
   elWrap.style.maxHeight = "";
   requestAnimationFrame(function(){
     fitBox();
@@ -749,6 +753,38 @@ elWrap.addEventListener("scroll", function(){
   elBox.classList.toggle("at-end",
     elWrap.scrollTop + elWrap.clientHeight >= elWrap.scrollHeight - 4);
   syncBar();
+  if (elWrap.scrollTop > 8) anchorBox();
+}, {passive:true});
+
+/* ---- 用户一开始在框内滑动，就把整页顶到"框贴着控制栏"的位置。
+       框下方腾出来的空间正好让广告卡片进入视野，且不打断框内的阅读。 ---- */
+var anchorDone = false, anchorTries = 0;
+
+function ctaInView(){
+  var el = document.querySelector(".cta");
+  if (!el) return true;
+  var r = el.getBoundingClientRect();
+  return r.bottom <= window.innerHeight + 4;
+}
+function anchorBox(){
+  if (!CONFIG.AUTO_ANCHOR || anchorDone || anchorTries >= 2) return;
+  if (ctaInView()){ anchorDone = true; return; }      // 已经看得到就别乱动页面
+  anchorTries++;
+  var barH = parseInt(getComputedStyle(document.documentElement)
+               .getPropertyValue("--ctl-h"), 10) || 56;
+  var target = Math.max(0, Math.round(
+    elBox.getBoundingClientRect().top + window.pageYOffset - barH - 10));
+  if (Math.abs(target - window.pageYOffset) < 8){ anchorDone = true; return; }
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  try { window.scrollTo({top:target, behavior: reduce ? "auto" : "smooth"}); }
+  catch(e){ window.scrollTo(0, target); }
+  anchorDone = true;
+}
+/* iOS 惯性滚动中平滑滚动可能被打断，抬手后补一次 */
+elWrap.addEventListener("touchend", function(){
+  if (elWrap.scrollTop > 8 && !ctaInView() && anchorTries < 2){
+    anchorDone = false; anchorBox();
+  }
 }, {passive:true});
 
 /* ---- 自绘滚动条：常驻显示，可拖动，也可点击轨道跳转 ---- */
