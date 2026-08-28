@@ -45,10 +45,10 @@
   --ink-3:#8b9098;
   --rule:#e4e4de;
   --rule-strong:#cfcfc7;
-  --seal:#a4342a;         /* 朱批红：榜单/录取的颜色 */
-  --seal-soft:#f4e8e6;
-  --seal-rail:#d9b3ad;
-  --focus:#2c5f8a;
+  --brand:#1b4b3a;        /* 墨绿：品牌主色 */
+  --brand-soft:#e9f1ed;
+  --brand-rail:#a6c3b4;
+  --focus:#0e7a5f;
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -59,10 +59,10 @@
     --ink-3:#767c85;
     --rule:#2b2f36;
     --rule-strong:#3a3f47;
-    --seal:#e07a68;
-    --seal-soft:#33231f;
-    --seal-rail:#7a4238;
-    --focus:#6fa8d6;
+    --brand:#6dbe9c;
+    --brand-soft:#152420;
+    --brand-rail:#3c6a57;
+    --focus:#8fd8bb;
   }
 }
 
@@ -87,7 +87,7 @@ a{color:inherit}
 .masthead{padding:36px 0 22px;border-bottom:1px solid var(--rule)}
 .eyebrow{
   font-size:12px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--seal);font-weight:600;margin-bottom:10px;
+  color:var(--brand);font-weight:600;margin-bottom:10px;
 }
 .masthead h1{
   font-family:"Songti SC","Source Han Serif SC","Noto Serif SC","SimSun",Georgia,serif;
@@ -95,8 +95,8 @@ a{color:inherit}
   font-weight:700;line-height:1.25;letter-spacing:.01em;
 }
 .masthead .sub{margin-top:8px;color:var(--ink-2);font-size:14px;max-width:52ch}
-.masthead .sub a{color:var(--seal);text-decoration:none;border-bottom:1px solid var(--seal-rail)}
-.masthead .sub a:hover{border-bottom-color:var(--seal)}
+.masthead .sub a{color:var(--brand);text-decoration:none;border-bottom:1px solid var(--brand-rail)}
+.masthead .sub a:hover{border-bottom-color:var(--brand)}
 
 /* ============ controls ============ */
 .controls{
@@ -117,7 +117,7 @@ a{color:inherit}
   border-right:1px solid var(--rule);transition:background .15s,color .15s;
 }
 .segmented button:last-child{border-right:0}
-.segmented button[aria-pressed="true"]{background:var(--seal);color:#fff;font-weight:600}
+.segmented button[aria-pressed="true"]{background:var(--brand);color:#fff;font-weight:600}
 
 .years{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .years::-webkit-scrollbar{display:none}
@@ -126,8 +126,8 @@ a{color:inherit}
   font:inherit;font-size:14px;padding:5px 11px;border-radius:6px;cursor:pointer;white-space:nowrap;
   transition:background .15s,color .15s;
 }
-.years button:hover{background:var(--seal-soft)}
-.years button[aria-pressed="true"]{color:var(--seal);font-weight:700;background:var(--seal-soft);border-color:var(--seal-rail)}
+.years button:hover{background:var(--brand-soft)}
+.years button[aria-pressed="true"]{color:var(--brand);font-weight:700;background:var(--brand-soft);border-color:var(--brand-rail)}
 
 .searchbox{position:relative;flex:1 1 260px;min-width:200px}
 .searchbox input{
@@ -136,7 +136,7 @@ a{color:inherit}
   border:1px solid var(--rule-strong);border-radius:8px;transition:border-color .15s,box-shadow .15s;
 }
 .searchbox input::placeholder{color:var(--ink-3)}
-.searchbox input:focus{outline:0;border-color:var(--seal);box-shadow:0 0 0 3px var(--seal-soft)}
+.searchbox input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
 .searchbox svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--ink-3);fill:none;stroke-width:2}
 .clearbtn{
   position:absolute;right:6px;top:50%;transform:translateY(-50%);
@@ -152,13 +152,13 @@ a{color:inherit}
   flex-wrap:wrap;padding:18px 0 10px;
 }
 .tally{font-size:14px;color:var(--ink-2)}
-.tally b{font-family:"Songti SC","Noto Serif SC",Georgia,serif;font-size:22px;color:var(--seal);font-weight:700;padding:0 2px}
+.tally b{font-family:"Songti SC","Noto Serif SC",Georgia,serif;font-size:22px;color:var(--brand);font-weight:700;padding:0 2px}
 .meta{font-size:12.5px;color:var(--ink-3)}
 .linkbtn{
   appearance:none;background:transparent;border:1px solid var(--rule-strong);
   color:var(--ink-2);font:inherit;font-size:13px;padding:4px 11px;border-radius:6px;cursor:pointer;
 }
-.linkbtn:hover{border-color:var(--seal);color:var(--seal)}
+.linkbtn:hover{border-color:var(--brand);color:var(--brand)}
 
 /* ============ table ============ */
 /* overflow:clip 而非 hidden —— hidden 会成为 sticky 的滚动容器，导致表头错位 */
@@ -174,34 +174,34 @@ thead th{
   border-bottom:1px solid var(--rule-strong);
 }
 th.sortable{cursor:pointer;user-select:none}
-th.sortable:hover{color:var(--seal)}
+th.sortable:hover{color:var(--brand)}
 th .arrow{opacity:0;font-size:10px;margin-left:3px}
-th[aria-sort="ascending"] .arrow,th[aria-sort="descending"] .arrow{opacity:1;color:var(--seal)}
+th[aria-sort="ascending"] .arrow,th[aria-sort="descending"] .arrow{opacity:1;color:var(--brand)}
 th[aria-sort="ascending"] .arrow::after{content:"▲"}
 th[aria-sort="descending"] .arrow::after{content:"▼"}
 th.num,td.num{text-align:right}
 
 tbody td{padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:middle}
 tbody tr:last-child td{border-bottom:0}
-tbody tr:hover{background:var(--seal-soft)}
+tbody tr:hover{background:var(--brand-soft)}
 
 .seq{color:var(--ink-3);font-size:13px;width:1%}
 .school{min-width:0}
 .school .nm{font-weight:600;font-size:15.5px;letter-spacing:.01em}
 .school .nm a{text-decoration:none;border-bottom:1px solid transparent}
-.school .nm a:hover{color:var(--seal);border-bottom-color:var(--seal-rail)}
+.school .nm a:hover{color:var(--brand);border-bottom-color:var(--brand-rail)}
 .school .cd{font-size:12px;color:var(--ink-3);margin-top:1px}
-mark{background:var(--seal-soft);color:var(--seal);padding:0 1px;border-radius:2px}
+mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius:2px}
 
-.score{font-size:17px;font-weight:700;color:var(--seal);white-space:nowrap}
+.score{font-size:17px;font-weight:700;color:var(--brand);white-space:nowrap}
 .rank{white-space:nowrap;color:var(--ink)}
 .enroll{color:var(--ink-2);white-space:nowrap}
 
 /* signature: 分数刻度条 */
 .rail{width:120px;padding-left:0!important;padding-right:14px!important}
 .rail .track{height:3px;background:var(--rule);border-radius:2px;position:relative;overflow:hidden}
-.rail .fill{position:absolute;left:0;top:0;bottom:0;background:var(--seal-rail);border-radius:2px}
-.rail .dot{position:absolute;top:-2.5px;width:8px;height:8px;border-radius:50%;background:var(--seal);transform:translateX(-4px)}
+.rail .fill{position:absolute;left:0;top:0;bottom:0;background:var(--brand-rail);border-radius:2px}
+.rail .dot{position:absolute;top:-2.5px;width:8px;height:8px;border-radius:50%;background:var(--brand);transform:translateX(-4px)}
 
 /* ============ states ============ */
 .panel{padding:56px 24px;text-align:center;color:var(--ink-2);background:var(--card);border:1px solid var(--rule);border-radius:10px}
@@ -215,17 +215,17 @@ mark{background:var(--seal-soft);color:var(--seal);padding:0 1px;border-radius:2
 /* ============ CTA：课程推广 ============ */
 .cta{
   margin:26px 0 0;display:flex;gap:18px 26px;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;padding:22px 24px;background:var(--seal-soft);
-  border:1px solid var(--seal-rail);border-radius:10px;
+  flex-wrap:wrap;padding:22px 24px;background:var(--brand-soft);
+  border:1px solid var(--brand-rail);border-radius:10px;
 }
-.cta-eyebrow{font-size:11.5px;letter-spacing:.16em;color:var(--seal);font-weight:700;margin-bottom:6px}
+.cta-eyebrow{font-size:11.5px;letter-spacing:.16em;color:var(--brand);font-weight:700;margin-bottom:6px}
 .cta-title{
   font-family:"Songti SC","Source Han Serif SC","Noto Serif SC","SimSun",Georgia,serif;
   font-size:20px;font-weight:700;line-height:1.35;
 }
 .cta-text{margin-top:8px;color:var(--ink-2);font-size:13.5px;max-width:58ch}
 .cta-btn{
-  flex:0 0 auto;display:inline-block;background:var(--seal);color:#fff;text-decoration:none;
+  flex:0 0 auto;display:inline-block;background:var(--brand);color:#fff;text-decoration:none;
   font-size:15px;font-weight:600;padding:11px 24px;border-radius:8px;white-space:nowrap;
   transition:opacity .15s,transform .15s;
 }
@@ -239,7 +239,7 @@ mark{background:var(--seal-soft);color:var(--seal);padding:0 1px;border-radius:2
 
 /* ============ footer ============ */
 .footer{margin-top:34px;padding:22px 0 46px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.footer a{color:var(--seal);text-decoration:none}
+.footer a{color:var(--brand);text-decoration:none}
 .footer a:hover{text-decoration:underline}
 
 /* ============ mobile: table → cards ============ */
@@ -309,10 +309,7 @@ mark{background:var(--seal-soft);color:var(--seal);padding:0 1px;border-radius:2
 <main class="wrap">
   <div class="statusbar">
     <p class="tally" id="tally" aria-live="polite" role="status">共 <b>0</b> 所院校</p>
-    <div class="field" style="gap:12px">
-      <span class="meta" id="meta"></span>
-      <button type="button" class="linkbtn" id="copylink">复制本页链接</button>
-    </div>
+    <span class="meta" id="meta"></span>
   </div>
 
   <div class="tablewrap" id="tablewrap">
@@ -379,11 +376,11 @@ mark{background:var(--seal-soft);color:var(--seal);padding:0 1px;border-radius:2
    配置：改这里就行
    ============================================================ */
 var CONFIG = {
-  DATA_PATH: "data/",              // JSON 目录，留空 "" 表示与本文件同级
+  DATA_PATH: "",                   // JSON 目录。"" = 与本文件同级（GitHub 仓库根目录就是这种）
   CATEGORIES: ["理科","文科"],
   YEARS: [2025,2024,2023,2022,2021,2020],   // 兜底年份；若存在 manifest.json 会以它为准
-  MANIFEST: "data/manifest.json",
-  SCHOOL_PAGE: "school/{code}.html",         // 静态详情页路径；设为 null 则不生成链接
+  MANIFEST: "manifest.json",
+  SCHOOL_PAGE: null,               // 院校详情页路径；跑 build.py 后会自动改成 "school/{code}.html"
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
   UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
 };
@@ -686,19 +683,6 @@ document.querySelectorAll("th.sortable").forEach(function(th){
   });
   th.tabIndex = 0;
   th.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); th.click(); } });
-});
-
-$("copylink").addEventListener("click", function(){
-  var btn = this, txt = location.href;
-  var done = function(){ btn.textContent = "已复制"; setTimeout(function(){ btn.textContent = "复制本页链接"; }, 1600); };
-  if (navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(txt).then(done, done); }
-  else {
-    var ta = document.createElement("textarea");
-    ta.value = txt; ta.style.position="fixed"; ta.style.opacity="0";
-    document.body.appendChild(ta); ta.select();
-    try{ document.execCommand("copy"); }catch(e){}
-    document.body.removeChild(ta); done();
-  }
 });
 
 window.addEventListener("popstate", function(){
