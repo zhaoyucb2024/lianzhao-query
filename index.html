@@ -212,6 +212,28 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
 .skeleton{height:14px;background:var(--rule);border-radius:3px;margin:0 auto 12px;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 
+/* ============ 折叠 ============ */
+/* 用 max-height 视觉裁切，不删 DOM —— 所有行都留在 HTML 里，爬虫照样读得到 */
+.tablewrap.is-collapsed{position:relative;max-height:var(--fold-h,640px)}
+.tablewrap.is-collapsed::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,var(--card) 82%);
+}
+.expand{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:16px 0 0}
+.expand[hidden]{display:none}
+.expand-btn{
+  appearance:none;background:var(--card);border:1px solid var(--brand-rail);color:var(--brand);
+  font:inherit;font-size:14.5px;font-weight:600;padding:9px 26px;border-radius:8px;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.expand-btn:hover{background:var(--brand-soft);border-color:var(--brand)}
+.expand-hint{font-size:13px;color:var(--ink-3)}
+@media (max-width:700px){
+  .expand{padding:14px 0 0}
+  .expand-btn{width:100%;padding:12px 20px}
+  .expand-hint{display:none}
+}
+
 /* ============ CTA：课程推广 ============ */
 .cta{
   margin:26px 0 0;display:flex;gap:18px 26px;align-items:center;justify-content:space-between;
@@ -329,6 +351,11 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
     </table>
   </div>
 
+  <div class="expand" id="expand" hidden>
+    <button type="button" class="expand-btn" id="expand-btn">展开全部院校</button>
+    <span class="expand-hint">或在上方搜索框直接输入校名</span>
+  </div>
+
   <div class="panel" id="loading" hidden>
     <div class="skeleton" style="width:180px"></div>
     <div class="skeleton" style="width:260px"></div>
@@ -381,6 +408,8 @@ var CONFIG = {
   YEARS: [2025,2024,2023,2022,2021,2020],   // 兜底年份；若存在 manifest.json 会以它为准
   MANIFEST: "manifest.json",
   SCHOOL_PAGE: null,               // 院校详情页路径；跑 build.py 后会自动改成 "school/{code}.html"
+  FOLD_ROWS: 10,                   // 默认展示多少所，其余折叠（电脑）
+  FOLD_ROWS_MOBILE: 5,             // 手机上展示多少所
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
   UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
 };
@@ -433,6 +462,7 @@ function show(el, on){ el.hidden = !on; }
    状态
    ============================================================ */
 var state = { year:null, cat:"理科", q:"", sortKey:"最低分", sortDir:"desc" };
+var expanded = false;   // 是否已展开全部
 var cache = new Map();
 var rows = [];       // 当前数据集（已加拼音索引）
 var meta = {};       // 当前数据集的 updated / source
@@ -446,10 +476,16 @@ var $ = function(id){ return document.getElementById(id); };
   set();
   if (window.ResizeObserver) new ResizeObserver(set).observe(bar);
   window.addEventListener("resize", set);
+  var t;
+  window.addEventListener("resize", function(){
+    clearTimeout(t);
+    t = setTimeout(function(){ if (typeof render === "function" && elRows.children.length) render(); }, 200);
+  });
 })();
 
 var elRows=$("rows"), elTally=$("tally"), elMeta=$("meta"), elTable=$("tablewrap"),
-    elLoading=$("loading"), elEmpty=$("empty"), elError=$("error"), elQ=$("q"), elClear=$("clear");
+    elLoading=$("loading"), elEmpty=$("empty"), elError=$("error"), elQ=$("q"), elClear=$("clear"),
+    elExpand=$("expand"), elExpandBtn=$("expand-btn");
 
 /* ============================================================
    URL ↔ 状态
@@ -494,7 +530,7 @@ function buildYears(years){
     b.setAttribute("aria-pressed", String(y === state.year));
     b.addEventListener("click", function(){
       if (state.year === y) return;
-      state.year = y; syncControls(); writeURL(); load();
+      state.year = y; expanded = false; syncControls(); writeURL(); load();
     });
     box.appendChild(b);
   });
@@ -649,6 +685,40 @@ function render(){
   }).join("");
 
   elRows.innerHTML = html;
+  applyFold(list.length);
+}
+
+/* 折叠：只做视觉裁切，DOM 里始终是全量 */
+function foldLimit(){
+  return window.matchMedia("(max-width:700px)").matches ? CONFIG.FOLD_ROWS_MOBILE : CONFIG.FOLD_ROWS;
+}
+function applyFold(count){
+  var limit = foldLimit();
+
+  if (count <= limit){
+    elTable.classList.remove("is-collapsed");
+    elTable.style.removeProperty("--fold-h");
+    elExpand.hidden = true;
+    return;
+  }
+
+  elExpand.hidden = false;
+
+  if (expanded){
+    elTable.classList.remove("is-collapsed");
+    elTable.style.removeProperty("--fold-h");
+    elExpandBtn.textContent = "收起列表";
+    return;
+  }
+
+  var last = elRows.children[limit - 1];
+  if (!last){ elTable.classList.remove("is-collapsed"); return; }
+  var top = elTable.getBoundingClientRect().top;
+  elTable.style.setProperty("--fold-h", Math.round(last.getBoundingClientRect().bottom - top) + "px");
+  elTable.classList.add("is-collapsed");
+  elExpandBtn.textContent = state.q
+    ? ("展开全部 " + count + " 所匹配院校")
+    : ("展开全部 " + count + " 所院校");
 }
 
 /* ============================================================
@@ -657,7 +727,7 @@ function render(){
 document.querySelectorAll("#cat-group button").forEach(function(b){
   b.addEventListener("click", function(){
     if (state.cat === b.dataset.cat) return;
-    state.cat = b.dataset.cat; syncControls(); writeURL(); load();
+    state.cat = b.dataset.cat; expanded = false; syncControls(); writeURL(); load();
   });
 });
 
@@ -671,6 +741,17 @@ elQ.addEventListener("input", function(){
 });
 elQ.addEventListener("search", function(){ if(!elQ.value){ state.q=""; elClear.hidden=true; render(); writeURL(true);} });
 elClear.addEventListener("click", function(){ state.q=""; elQ.value=""; elClear.hidden=true; render(); writeURL(true); elQ.focus(); });
+elExpandBtn.addEventListener("click", function(){
+  expanded = !expanded;
+  render();
+  if (!expanded){
+    // 收起时把视线带回列表顶部，否则会停在广告位那儿一脸茫然
+    var y = elTable.getBoundingClientRect().top + window.pageYOffset - (parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue("--ctl-h"), 10) || 60) - 12;
+    window.scrollTo({top:y, behavior:"smooth"});
+  }
+});
+
 $("reset").addEventListener("click", function(){ state.q=""; elQ.value=""; elClear.hidden=true; render(); writeURL(true); });
 $("retry").addEventListener("click", function(){ cache.delete(state.year + "-" + state.cat); load(); });
 
