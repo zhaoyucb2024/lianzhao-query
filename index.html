@@ -162,12 +162,50 @@ a{color:inherit}
 
 /* ============ table ============ */
 /* overflow:clip 而非 hidden —— hidden 会成为 sticky 的滚动容器，导致表头错位 */
-.tablewrap{border:1px solid var(--rule);border-radius:10px;overflow:clip;background:var(--card)}
+/* 滚动阅览框：固定高度，内部自己滚，广告永远钉在框正下方 */
+.tablebox{position:relative;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+.tablewrap{
+  max-height:var(--box-h,520px);
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;          /* 框内滚到底不带动整页 */
+  border-radius:10px;
+}
+/* 原生滚动条各平台表现不一（iOS、微信里默认隐藏），改用自绘的常驻滚动条 */
+.tablewrap{scrollbar-width:none;-ms-overflow-style:none;padding-right:14px}
+.tablewrap::-webkit-scrollbar{display:none}
+
+.sbar{
+  position:absolute;right:5px;top:8px;bottom:8px;width:6px;
+  border-radius:99px;background:var(--rule);z-index:12;
+}
+.sbar[hidden]{display:none}
+.sbar-thumb{
+  position:absolute;left:0;right:0;top:0;min-height:30px;
+  border-radius:99px;background:var(--brand-rail);cursor:grab;
+  transition:background .15s;
+}
+.sbar-thumb:hover,.sbar.dragging .sbar-thumb{background:var(--brand)}
+.sbar.dragging .sbar-thumb{cursor:grabbing}
+/* 底部渐隐：提示"下面还有"，滑到底自动消失 */
+.tablebox::after{
+  content:"";position:absolute;left:1px;right:16px;bottom:1px;height:52px;
+  pointer-events:none;border-radius:0 0 10px 10px;
+  background:linear-gradient(to bottom,transparent,var(--card) 88%);
+  opacity:1;transition:opacity .2s;
+}
+.tablebox.at-end::after,.tablebox.no-scroll::after{opacity:0}
+.scrollhint{
+  margin:10px 2px 0;font-size:12.5px;color:var(--ink-3);
+  display:flex;align-items:center;gap:6px;
+}
+.scrollhint[hidden]{display:none}
+.scrollhint svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
 table{width:100%;border-collapse:collapse;border-radius:9px}
 tbody tr:last-child td:first-child{border-bottom-left-radius:9px}
 tbody tr:last-child td:last-child{border-bottom-right-radius:9px}
 thead th{
-  position:sticky;top:var(--ctl-h,49px);z-index:10;
+  position:sticky;top:0;z-index:10;
   background:var(--card);
   font-size:12.5px;font-weight:600;color:var(--ink-2);letter-spacing:.04em;
   text-align:left;padding:11px 14px;white-space:nowrap;
@@ -212,28 +250,6 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
 .skeleton{height:14px;background:var(--rule);border-radius:3px;margin:0 auto 12px;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 
-/* ============ 折叠 ============ */
-/* 用 max-height 视觉裁切，不删 DOM —— 所有行都留在 HTML 里，爬虫照样读得到 */
-.tablewrap.is-collapsed{position:relative;max-height:var(--fold-h,640px)}
-.tablewrap.is-collapsed::after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:96px;pointer-events:none;
-  background:linear-gradient(to bottom,transparent,var(--card) 82%);
-}
-.expand{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:16px 0 0}
-.expand[hidden]{display:none}
-.expand-btn{
-  appearance:none;background:var(--card);border:1px solid var(--brand-rail);color:var(--brand);
-  font:inherit;font-size:14.5px;font-weight:600;padding:9px 26px;border-radius:8px;cursor:pointer;
-  transition:background .15s,border-color .15s;
-}
-.expand-btn:hover{background:var(--brand-soft);border-color:var(--brand)}
-.expand-hint{font-size:13px;color:var(--ink-3)}
-@media (max-width:700px){
-  .expand{padding:14px 0 0}
-  .expand-btn{width:100%;padding:12px 20px}
-  .expand-hint{display:none}
-}
-
 /* ============ CTA：课程推广 ============ */
 .cta{
   margin:26px 0 0;display:flex;gap:18px 26px;align-items:center;justify-content:space-between;
@@ -269,7 +285,7 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
   .wrap{padding:0 14px}
   .masthead{padding:26px 0 18px}
   thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  .tablewrap{border-radius:10px}
+  .tablewrap{--box-h:400px}
   tbody tr{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:13px 14px;border-bottom:1px solid var(--rule)}
   tbody tr:last-child{border-bottom:0}
   tbody td{display:block;padding:0;border:0}
@@ -334,6 +350,7 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
     <span class="meta" id="meta"></span>
   </div>
 
+  <div class="tablebox" id="tablebox">
   <div class="tablewrap" id="tablewrap">
     <table>
       <caption class="sr" id="cap">联招院校录取分数线</caption>
@@ -350,11 +367,16 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
       <tbody id="rows"><!--PRERENDER_ROWS--><!--/PRERENDER_ROWS--></tbody>
     </table>
   </div>
-
-  <div class="expand" id="expand" hidden>
-    <button type="button" class="expand-btn" id="expand-btn">展开全部院校</button>
-    <span class="expand-hint">或在上方搜索框直接输入校名</span>
+  <div class="sbar" id="sbar" hidden>
+    <div class="sbar-thumb" id="sbar-thumb" role="scrollbar" aria-controls="tablewrap"
+         aria-orientation="vertical" tabindex="0" aria-label="院校列表滚动条"></div>
   </div>
+  </div>
+
+  <p class="scrollhint" id="scrollhint">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg>
+    <span id="scrollhint-text">在框内上下滑动查看全部院校</span>
+  </p>
 
   <div class="panel" id="loading" hidden>
     <div class="skeleton" style="width:180px"></div>
@@ -408,8 +430,7 @@ var CONFIG = {
   YEARS: [2025,2024,2023,2022,2021,2020],   // 兜底年份；若存在 manifest.json 会以它为准
   MANIFEST: "manifest.json",
   SCHOOL_PAGE: null,               // 院校详情页路径；跑 build.py 后会自动改成 "school/{code}.html"
-  FOLD_ROWS: 10,                   // 默认展示多少所，其余折叠（电脑）
-  FOLD_ROWS_MOBILE: 5,             // 手机上展示多少所
+  LOCK_COPY: true,                 // 禁止在表格里框选复制（挡不住看源码，只挡随手复制）
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
   UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
 };
@@ -462,7 +483,6 @@ function show(el, on){ el.hidden = !on; }
    状态
    ============================================================ */
 var state = { year:null, cat:"理科", q:"", sortKey:"最低分", sortDir:"desc" };
-var expanded = false;   // 是否已展开全部
 var cache = new Map();
 var rows = [];       // 当前数据集（已加拼音索引）
 var meta = {};       // 当前数据集的 updated / source
@@ -483,9 +503,11 @@ var $ = function(id){ return document.getElementById(id); };
   });
 })();
 
-var elRows=$("rows"), elTally=$("tally"), elMeta=$("meta"), elTable=$("tablewrap"),
+var elRows=$("rows"), elTally=$("tally"), elMeta=$("meta"),
+    elBox=$("tablebox"), elWrap=$("tablewrap"), elTable=$("tablebox"),
     elLoading=$("loading"), elEmpty=$("empty"), elError=$("error"), elQ=$("q"), elClear=$("clear"),
-    elExpand=$("expand"), elExpandBtn=$("expand-btn");
+    elHint=$("scrollhint"), elHintText=$("scrollhint-text"),
+    elBar=$("sbar"), elThumb=$("sbar-thumb");
 
 /* ============================================================
    URL ↔ 状态
@@ -530,7 +552,7 @@ function buildYears(years){
     b.setAttribute("aria-pressed", String(y === state.year));
     b.addEventListener("click", function(){
       if (state.year === y) return;
-      state.year = y; expanded = false; syncControls(); writeURL(); load();
+      state.year = y; syncControls(); writeURL(); load();
     });
     box.appendChild(b);
   });
@@ -685,41 +707,81 @@ function render(){
   }).join("");
 
   elRows.innerHTML = html;
-  applyFold(list.length);
+  updateBox(list.length);
 }
 
-/* 折叠：只做视觉裁切，DOM 里始终是全量 */
-function foldLimit(){
-  return window.matchMedia("(max-width:700px)").matches ? CONFIG.FOLD_ROWS_MOBILE : CONFIG.FOLD_ROWS;
+/* 滚动阅览框：内容比框高就显示渐隐和提示，滑到底渐隐淡出 */
+function updateBox(count){
+  elWrap.scrollTop = 0;
+  requestAnimationFrame(function(){
+    var scrollable = elWrap.scrollHeight - elWrap.clientHeight > 4;
+    elBox.classList.toggle("no-scroll", !scrollable);
+    elBox.classList.remove("at-end");
+    elHint.hidden = !scrollable;
+    syncBar();
+    if (scrollable){
+      elHintText.textContent = state.q
+        ? ("在框内上下滑动，查看全部 " + count + " 所匹配院校")
+        : ("在框内上下滑动，查看全部 " + count + " 所院校");
+    }
+  });
 }
-function applyFold(count){
-  var limit = foldLimit();
+elWrap.addEventListener("scroll", function(){
+  elBox.classList.toggle("at-end",
+    elWrap.scrollTop + elWrap.clientHeight >= elWrap.scrollHeight - 4);
+  syncBar();
+}, {passive:true});
 
-  if (count <= limit){
-    elTable.classList.remove("is-collapsed");
-    elTable.style.removeProperty("--fold-h");
-    elExpand.hidden = true;
-    return;
+/* ---- 自绘滚动条：常驻显示，可拖动，也可点击轨道跳转 ---- */
+function syncBar(){
+  var ch = elWrap.clientHeight, sh = elWrap.scrollHeight;
+  if (sh - ch <= 4){ elBar.hidden = true; return; }
+  elBar.hidden = false;
+  var trackH = elBar.clientHeight;
+  var thumbH = Math.max(30, Math.round(trackH * ch / sh));
+  var maxTop = trackH - thumbH;
+  var top = maxTop <= 0 ? 0 : Math.round(maxTop * (elWrap.scrollTop / (sh - ch)));
+  elThumb.style.height = thumbH + "px";
+  elThumb.style.transform = "translateY(" + top + "px)";
+  elThumb.setAttribute("aria-valuenow", Math.round(elWrap.scrollTop / (sh - ch) * 100));
+}
+function scrollToThumb(clientY, grabOffset){
+  var rect = elBar.getBoundingClientRect();
+  var thumbH = elThumb.offsetHeight;
+  var maxTop = rect.height - thumbH;
+  if (maxTop <= 0) return;
+  var top = Math.min(maxTop, Math.max(0, clientY - rect.top - grabOffset));
+  elWrap.scrollTop = (top / maxTop) * (elWrap.scrollHeight - elWrap.clientHeight);
+}
+(function(){
+  var grab = 0;
+  function move(e){ scrollToThumb(e.clientY, grab); e.preventDefault(); }
+  function up(){
+    elBar.classList.remove("dragging");
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("pointerup", up);
   }
-
-  elExpand.hidden = false;
-
-  if (expanded){
-    elTable.classList.remove("is-collapsed");
-    elTable.style.removeProperty("--fold-h");
-    elExpandBtn.textContent = "收起列表";
-    return;
-  }
-
-  var last = elRows.children[limit - 1];
-  if (!last){ elTable.classList.remove("is-collapsed"); return; }
-  var top = elTable.getBoundingClientRect().top;
-  elTable.style.setProperty("--fold-h", Math.round(last.getBoundingClientRect().bottom - top) + "px");
-  elTable.classList.add("is-collapsed");
-  elExpandBtn.textContent = state.q
-    ? ("展开全部 " + count + " 所匹配院校")
-    : ("展开全部 " + count + " 所院校");
-}
+  elThumb.addEventListener("pointerdown", function(e){
+    grab = e.clientY - elThumb.getBoundingClientRect().top;
+    elBar.classList.add("dragging");
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up);
+    e.preventDefault();
+  });
+  elBar.addEventListener("pointerdown", function(e){
+    if (e.target === elThumb) return;
+    scrollToThumb(e.clientY, elThumb.offsetHeight / 2);
+  });
+  elThumb.addEventListener("keydown", function(e){
+    var step = elWrap.clientHeight * 0.9;
+    if (e.key === "ArrowDown"){ elWrap.scrollTop += 60; e.preventDefault(); }
+    else if (e.key === "ArrowUp"){ elWrap.scrollTop -= 60; e.preventDefault(); }
+    else if (e.key === "PageDown"){ elWrap.scrollTop += step; e.preventDefault(); }
+    else if (e.key === "PageUp"){ elWrap.scrollTop -= step; e.preventDefault(); }
+    else if (e.key === "Home"){ elWrap.scrollTop = 0; e.preventDefault(); }
+    else if (e.key === "End"){ elWrap.scrollTop = elWrap.scrollHeight; e.preventDefault(); }
+  });
+})();
 
 /* ============================================================
    事件
@@ -727,7 +789,7 @@ function applyFold(count){
 document.querySelectorAll("#cat-group button").forEach(function(b){
   b.addEventListener("click", function(){
     if (state.cat === b.dataset.cat) return;
-    state.cat = b.dataset.cat; expanded = false; syncControls(); writeURL(); load();
+    state.cat = b.dataset.cat; syncControls(); writeURL(); load();
   });
 });
 
@@ -741,17 +803,6 @@ elQ.addEventListener("input", function(){
 });
 elQ.addEventListener("search", function(){ if(!elQ.value){ state.q=""; elClear.hidden=true; render(); writeURL(true);} });
 elClear.addEventListener("click", function(){ state.q=""; elQ.value=""; elClear.hidden=true; render(); writeURL(true); elQ.focus(); });
-elExpandBtn.addEventListener("click", function(){
-  expanded = !expanded;
-  render();
-  if (!expanded){
-    // 收起时把视线带回列表顶部，否则会停在广告位那儿一脸茫然
-    var y = elTable.getBoundingClientRect().top + window.pageYOffset - (parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue("--ctl-h"), 10) || 60) - 12;
-    window.scrollTo({top:y, behavior:"smooth"});
-  }
-});
-
 $("reset").addEventListener("click", function(){ state.q=""; elQ.value=""; elClear.hidden=true; render(); writeURL(true); });
 $("retry").addEventListener("click", function(){ cache.delete(state.year + "-" + state.cat); load(); });
 
@@ -798,6 +849,14 @@ function boot(years){
   var b = $("empty-course"); if (b) b.href = CONFIG.COURSE_URL + (CONFIG.UTM ? CONFIG.UTM + "&pos=empty" : "");
   var f = $("foot-course"); if (f) f.href = CONFIG.COURSE_URL + (CONFIG.UTM ? CONFIG.UTM + "&pos=footer" : "");
 })();
+
+// 轻度防复制：只挡随手全选，挡不住查看源码（数据必须留在 HTML 里才有 SEO）
+if (CONFIG.LOCK_COPY){
+  elWrap.style.webkitUserSelect = "none";
+  elWrap.style.userSelect = "none";
+  elWrap.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+  elWrap.addEventListener("dragstart", function(e){ e.preventDefault(); });
+}
 
 readURL();
 fetch(CONFIG.MANIFEST, {cache:"force-cache"})
