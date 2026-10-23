@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#15171b" media="(prefers-color-scheme: dark)">
 
 <title>华侨港澳台联招分数线查询 | 历年各校录取最低分与最低排位 - 景于行</title>
-<meta name="description" content="全国联招（华侨港澳台联考）历年录取分数线查询：按年份、文理科检索各高校录取最低分、最低排位与录取人数，支持校名、院校代码、拼音首字母搜索。">
-<meta name="keywords" content="华侨生联考分数线,港澳台联招,全国联招录取分数线,联考最低排位,华侨港澳台联考查分">
+<meta name="description" content="全国联招（华侨港澳台联考）历年录取分数线查询：按年份、文理科检索各高校录取最低分、最低排位与录取人数，点击院校查看当年招生专业，支持校名、院校代码、拼音首字母搜索。">
+<meta name="keywords" content="华侨生联考分数线,港澳台联招,全国联招录取分数线,联考最低排位,华侨港澳台联考查分,联招招生专业,华侨生联考专业目录">
 <link rel="canonical" href="https://www.orviews.com/tools/lianzhao-score/">
 
 <meta property="og:type" content="website">
@@ -307,6 +307,143 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
 }
 
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ============ 院校名 → 招生专业入口 ============ */
+tbody tr.has-mj{cursor:pointer}
+.nm-btn{
+  appearance:none;border:0;background:transparent;padding:0;margin:0;
+  font:inherit;color:inherit;text-align:left;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.nm-btn .nm-txt{border-bottom:1px solid transparent;transition:border-color .15s,color .15s}
+tr.has-mj:hover .nm-btn .nm-txt,.nm-btn:focus-visible .nm-txt{color:var(--brand);border-bottom-color:var(--brand-rail)}
+.mj-pill{
+  display:inline-flex;align-items:center;gap:2px;
+  font-size:11.5px;font-weight:600;letter-spacing:.04em;line-height:1;
+  color:var(--brand);background:var(--brand-soft);border:1px solid var(--brand-rail);
+  padding:3px 6px 3px 7px;border-radius:99px;white-space:nowrap;
+}
+.mj-pill svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.4}
+
+/* ============ 专业抽屉 ============ */
+.mj-scrim{
+  position:fixed;inset:0;z-index:60;background:rgba(10,12,14,.42);
+  opacity:0;transition:opacity .22s ease;
+}
+.mj-scrim.on{opacity:1}
+.mj-drawer{
+  position:fixed;z-index:61;top:0;right:0;bottom:0;
+  width:min(540px,94vw);background:var(--card);color:var(--ink);
+  border-left:1px solid var(--rule);box-shadow:-18px 0 40px rgba(0,0,0,.16);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+}
+.mj-drawer.on{transform:none}
+.mj-drawer:focus{outline:0}
+.mj-scrim[hidden],.mj-drawer[hidden]{display:none}
+html.mj-lock,html.mj-lock body{overflow:hidden}
+
+.mj-grip{display:none}
+.mj-head{padding:22px 24px 0;flex:0 0 auto}
+.mj-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.mj-eyebrow{font-size:11.5px;letter-spacing:.16em;color:var(--brand);font-weight:700;margin-bottom:6px}
+.mj-title{
+  font-family:"Songti SC","Source Han Serif SC","Noto Serif SC","SimSun",Georgia,serif;
+  font-size:24px;font-weight:700;line-height:1.3;
+}
+.mj-code{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.mj-close{
+  flex:0 0 auto;appearance:none;border:1px solid var(--rule-strong);background:var(--card);
+  color:var(--ink-2);width:34px;height:34px;border-radius:8px;cursor:pointer;
+  display:grid;place-items:center;
+}
+.mj-close:hover{color:var(--ink);border-color:var(--ink-3)}
+.mj-close svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+
+.mj-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;
+  border:1px solid var(--rule);border-radius:9px;overflow:hidden;
+}
+.mj-stats > div{padding:9px 12px;border-right:1px solid var(--rule)}
+.mj-stats > div:last-child{border-right:0}
+.mj-stats dt{font-size:11.5px;color:var(--ink-3);letter-spacing:.04em}
+.mj-stats dd{font-size:18px;font-weight:700;line-height:1.35}
+.mj-stats dd.hi{color:var(--brand)}
+.mj-stats.none{display:block;padding:10px 12px;font-size:13px;color:var(--ink-3)}
+
+.mj-tabs{display:flex;gap:4px;margin-top:16px;border-bottom:1px solid var(--rule)}
+.mj-tabs button{
+  appearance:none;border:0;background:transparent;font:inherit;font-size:14px;
+  color:var(--ink-2);padding:8px 12px 9px;cursor:pointer;margin-bottom:-1px;
+  border-bottom:2px solid transparent;white-space:nowrap;
+}
+.mj-tabs button[aria-selected="true"]{color:var(--brand);font-weight:700;border-bottom-color:var(--brand)}
+.mj-tabs button:disabled{color:var(--ink-3);cursor:default;opacity:.7}
+.mj-tabs .ct{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:4px}
+
+.mj-filter{position:relative;margin:12px 0 2px}
+.mj-filter input{
+  width:100%;font:inherit;font-size:14px;padding:7px 12px 7px 32px;
+  background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:7px;
+}
+.mj-filter input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.mj-filter svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--ink-3);fill:none;stroke-width:2}
+.mj-filter[hidden]{display:none}
+
+.mj-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:4px 24px 8px}
+.mj-group{margin-top:14px}
+.mj-group h3{
+  font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.08em;
+  padding:6px 0;border-bottom:1px solid var(--rule-strong);
+  position:sticky;top:0;background:var(--card);z-index:1;
+}
+.mj-group h3 b{color:var(--ink-2);font-weight:700;margin-left:4px}
+.mj-list{list-style:none}
+.mj-item{display:grid;grid-template-columns:40px 1fr;gap:0 10px;padding:11px 0;border-bottom:1px solid var(--rule)}
+.mj-item:last-child{border-bottom:0}
+.mj-no{font-size:12px;color:var(--ink-3);padding-top:3px;letter-spacing:.02em}
+.mj-name{font-size:15px;font-weight:600;line-height:1.45;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.mj-tag{
+  font-size:11.5px;font-weight:500;color:var(--ink-2);background:var(--paper);
+  border:1px solid var(--rule);padding:1px 6px;border-radius:5px;line-height:1.5;white-space:nowrap;
+}
+.mj-tag.warn{color:#9a5b12;background:#fbf3e6;border-color:#ecd7b4}
+@media (prefers-color-scheme: dark){ .mj-tag.warn{color:#e7b56f;background:#2a2116;border-color:#4a3a22} }
+.mj-note{font-size:13px;color:var(--ink-2);margin-top:3px;line-height:1.6}
+.mj-note.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mj-more{
+  appearance:none;border:0;background:transparent;font:inherit;font-size:12.5px;
+  color:var(--brand);padding:2px 0 0;cursor:pointer;
+}
+.mj-msg{padding:40px 8px;text-align:center;color:var(--ink-2);font-size:14px}
+.mj-msg b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+.mj-foot{
+  flex:0 0 auto;border-top:1px solid var(--rule);padding:12px 24px calc(14px + env(safe-area-inset-bottom));
+  display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap;
+  font-size:12px;color:var(--ink-3);
+}
+.mj-foot a{color:var(--brand);text-decoration:none;font-weight:600;font-size:13px;white-space:nowrap}
+.mj-foot a:hover{text-decoration:underline}
+
+@media (max-width:700px){
+  td.school .nm{display:flex;align-items:baseline}
+  .mj-drawer{
+    top:auto;left:0;right:0;width:auto;height:min(88vh,88dvh);
+    border-left:0;border-top:1px solid var(--rule);border-radius:16px 16px 0 0;
+    box-shadow:0 -12px 36px rgba(0,0,0,.18);transform:translateY(100%);
+  }
+  .mj-drawer.dragging{transition:none}
+  .mj-grip{display:block;padding:8px 0 0;touch-action:none;cursor:grab}
+  .mj-grip::before{content:"";display:block;width:38px;height:4px;border-radius:99px;background:var(--rule-strong);margin:0 auto}
+  .mj-head{padding:8px 16px 0}
+  .mj-top{touch-action:none}
+  .mj-title{font-size:21px}
+  .mj-body{padding:2px 16px 8px}
+  .mj-foot{padding:10px 16px calc(12px + env(safe-area-inset-bottom))}
+  .mj-stats dd{font-size:16px}
+  .mj-item{grid-template-columns:34px 1fr}
+}
 </style>
 </head>
 <body>
@@ -417,6 +554,35 @@ mark{background:var(--brand-soft);color:var(--brand);padding:0 1px;border-radius
   </div>
 </main>
 
+<!-- 招生专业抽屉：电脑右侧滑出，手机底部弹起 -->
+<div class="mj-scrim" id="mj-scrim" hidden></div>
+<section class="mj-drawer" id="mj" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="mj-title" hidden>
+  <div class="mj-grip" id="mj-grip" aria-hidden="true"></div>
+  <div class="mj-head">
+    <div class="mj-top" id="mj-top">
+      <div>
+        <p class="mj-eyebrow" id="mj-eyebrow">招生专业</p>
+        <h2 class="mj-title" id="mj-title"></h2>
+        <p class="mj-code" id="mj-code"></p>
+      </div>
+      <button type="button" class="mj-close" id="mj-close" aria-label="关闭">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <dl class="mj-stats" id="mj-stats"></dl>
+    <div class="mj-tabs" id="mj-tabs" role="tablist" aria-label="招生科类"></div>
+    <div class="mj-filter" id="mj-filter" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="mj-q" autocomplete="off" enterkeyhint="search" aria-label="筛选专业">
+    </div>
+  </div>
+  <div class="mj-body" id="mj-body" role="tabpanel"></div>
+  <div class="mj-foot">
+    <span id="mj-src">专业目录仅供参考，以官方当年公布为准</span>
+    <a id="mj-course" href="https://www.orviews.com/xkzxlkkc/" target="_blank" rel="noopener">专业怎么选？了解升学规划 ›</a>
+  </div>
+</section>
+
 <script id="bootstrap" type="application/json">null</script>
 
 <script>
@@ -438,7 +604,10 @@ var CONFIG = {
   AUTO_ANCHOR: true,               // 用户一开始滑框，页面自动把框顶到上沿（广告随之露出）                      // 再露出下一所的 42%，让人一眼知道下面还有
   LOCK_COPY: true,                 // 禁止在表格里框选复制（挡不住看源码，只挡随手复制）
   COURSE_URL: "https://www.orviews.com/xkzxlkkc/",   // 联考课程页
-  UTM: "?utm_source=score-tool&utm_medium=cta"       // 便于统计转化，不需要就设为 ""
+  UTM: "?utm_source=score-tool&utm_medium=cta",      // 便于统计转化，不需要就设为 ""
+  /* 招生专业：新增某一年时，上传 {年份}-理科-专业.json、{年份}-文科-专业.json，再把年份加进这里 */
+  MAJOR_YEARS: [2025],
+  MAJOR_FILE: "{year}-{cat}-专业.json"
 };
 
 /* ============================================================
@@ -488,7 +657,9 @@ function show(el, on){ el.hidden = !on; }
 /* ============================================================
    状态
    ============================================================ */
-var state = { year:null, cat:"理科", q:"", sortKey:"最低分", sortDir:"desc" };
+var state = { year:null, cat:"理科", q:"", sortKey:"最低分", sortDir:"desc", m:null };
+var mjState = { open:false, code:null, name:"", tab:null, pushed:false, token:0 };
+var majorYears = CONFIG.MAJOR_YEARS.slice();
 var cache = new Map();
 var rows = [];       // 当前数据集（已加拼音索引）
 var meta = {};       // 当前数据集的 updated / source
@@ -505,7 +676,8 @@ var $ = function(id){ return document.getElementById(id); };
   var t;
   window.addEventListener("resize", function(){
     clearTimeout(t);
-    t = setTimeout(function(){ if (typeof render === "function" && elRows.children.length) render(); }, 200);
+    // 抽屉打开时（手机弹键盘也会触发 resize）不重绘，免得背后表格的滚动位置被重置
+    t = setTimeout(function(){ if (typeof render === "function" && elRows.children.length && !mjState.open) render(); }, 200);
   });
 })();
 
@@ -524,8 +696,8 @@ function readURL(){
   if (y) state.year = y;
   var c = p.get("c");
   if (c && CONFIG.CATEGORIES.indexOf(c) >= 0) state.cat = c;
-  var q = p.get("q");
-  if (q) state.q = q;
+  state.q = p.get("q") || "";
+  state.m = p.get("m") || null;
   var s = p.get("s");
   if (s){
     var parts = s.split(":");
@@ -539,9 +711,17 @@ function writeURL(replace){
   p.set("c", state.cat);
   if (state.q) p.set("q", state.q);
   if (!(state.sortKey === "最低分" && state.sortDir === "desc")) p.set("s", state.sortKey + ":" + state.sortDir);
+  if (state.m) p.set("m", state.m);
   var url = location.pathname + "?" + p.toString();
-  try { history[replace ? "replaceState" : "pushState"]({}, "", url); } catch(e){}
-  document.title = state.year + "年华侨港澳台联招" + state.cat + "分数线查询 - 景于行";
+  // mj=true 表示这条历史是"打开专业抽屉"时新压入的，关闭时用返回键退回去
+  var mj = replace ? !!(state.m && history.state && history.state.mj) : !!state.m;
+  try { history[replace ? "replaceState" : "pushState"]({mj: mj}, "", url); } catch(e){}
+  setTitle();
+}
+function setTitle(){
+  document.title = mjState.open && mjState.name
+    ? mjState.name + " " + state.year + "年联招招生专业 - 景于行"
+    : state.year + "年华侨港澳台联招" + state.cat + "分数线查询 - 景于行";
 }
 
 /* ============================================================
@@ -636,7 +816,13 @@ function apply(d, token){
   show(elLoading, false); show(elError, false);
   elMeta.textContent = meta.updated ? "数据更新于 " + meta.updated : "";
   render();
+  if (hasMajors(state.year)){
+    if (bootM){ var c = bootM; bootM = null; openMajors(c, false); }   // 带 ?m= 的分享链接直接打开
+    else { var y = state.year, k = state.cat; idle(function(){ getMajors(y, k).catch(function(){}); }); }  // 空闲时预取，点开即显示
+  }
+  bootM = null;
 }
+var bootM = null;
 
 /* ============================================================
    渲染
@@ -694,13 +880,20 @@ function render(){
   var hi = scores.length ? Math.max.apply(null, scores) : 1;
   var span = Math.max(1, hi - lo);
 
+  var mjOn = hasMajors(state.year);
   var html = list.map(function(r){
     var pct = r.score == null ? 0 : Math.round(((r.score - lo) / span) * 100);
     var nameHTML = highlight(r.name, state.q);
-    var linked = CONFIG.SCHOOL_PAGE && r.code
-      ? '<a href="' + esc(CONFIG.SCHOOL_PAGE.replace("{code}", encodeURIComponent(r.code))) + '">' + nameHTML + '</a>'
-      : nameHTML;
-    return '<tr>' +
+    var canMj = mjOn && r.code;
+    var linked = canMj
+      ? '<button type="button" class="nm-btn" data-code="' + esc(r.code) + '" aria-haspopup="dialog" ' +
+          'aria-label="' + esc(r.name) + '：查看' + state.year + '年招生专业">' +
+          '<span class="nm-txt">' + nameHTML + '</span>' +
+          '<span class="mj-pill" aria-hidden="true">专业<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>'
+      : CONFIG.SCHOOL_PAGE && r.code
+        ? '<a href="' + esc(CONFIG.SCHOOL_PAGE.replace("{code}", encodeURIComponent(r.code))) + '">' + nameHTML + '</a>'
+        : nameHTML;
+    return '<tr' + (canMj ? ' class="has-mj" data-code="' + esc(r.code) + '"' : '') + '>' +
       '<td class="seq">' + esc(r.seq) + '</td>' +
       '<td class="school"><div class="nm">' + linked + '</div>' +
         (r.code ? '<div class="cd">院校代码 ' + esc(r.code) + '</div>' : '') + '</td>' +
@@ -839,6 +1032,298 @@ function scrollToThumb(clientY, grabOffset){
 })();
 
 /* ============================================================
+   招生专业
+   ============================================================ */
+var KELEI = { "理科":"理工类", "文科":"文史类" };
+var mjCache = new Map();
+var elMj=$("mj"), elScrim=$("mj-scrim"), elMjBody=$("mj-body"), elMjTabs=$("mj-tabs"),
+    elMjStats=$("mj-stats"), elMjFilter=$("mj-filter"), elMjQ=$("mj-q");
+var mjData = {};          // 当前打开院校：{ 理科:{list,plans}|null|undefined, 文科:... }
+var mjReturnFocus = null;
+var mjHideTimer = null;
+
+function hasMajors(y){ return majorYears.indexOf(y) >= 0; }
+function idle(fn){ (window.requestIdleCallback || function(f){ return setTimeout(f, 600); })(fn); }
+
+function getMajors(year, cat){
+  var key = year + "-" + cat;
+  if (mjCache.has(key)) return mjCache.get(key);
+  var url = CONFIG.DATA_PATH + encodeURIComponent(CONFIG.MAJOR_FILE.replace("{year}", year).replace("{cat}", cat));
+  var p = fetch(url, {cache:"force-cache"})
+    .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(j){ return { schools: j.schools || {}, plans: j.plans || ["普通类","艺术类","体育类"] }; });
+  p.catch(function(){ mjCache.delete(key); });
+  mjCache.set(key, p);
+  return p;
+}
+function getScores(year, cat){
+  var key = year + "-" + cat;
+  if (cache.has(key)) return Promise.resolve(cache.get(key));
+  return fetch(CONFIG.DATA_PATH + encodeURIComponent(key) + ".json", {cache:"force-cache"})
+    .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(j){ var d = prepare(j); cache.set(key, d); return d; });
+}
+
+/* 拆专业名：主名 + 括号里的说明。短的做成标签（学制5年），长的作为说明文字 */
+function parseMajor(raw){
+  var main = "", groups = [], depth = 0, buf = "";
+  for (var i=0;i<raw.length;i++){
+    var ch = raw[i];
+    if (ch === "(" || ch === "（"){
+      if (depth === 0){ buf = ""; } else { buf += ch; }
+      depth++;
+    } else if (ch === ")" || ch === "）"){
+      depth--;
+      if (depth < 0) return { main: raw, tags: [], notes: [] };
+      if (depth === 0){ if (buf.trim()) groups.push(buf.trim()); } else { buf += ch; }
+    } else if (depth === 0){
+      if (groups.length) return { main: raw, tags: [], notes: [] };  // 括号后还有正文：不拆，原样显示
+      main += ch;
+    } else { buf += ch; }
+  }
+  if (depth !== 0 || !main.trim()) return { main: raw, tags: [], notes: [] };
+  var tags = [], notes = [];
+  groups.forEach(function(g){
+    if (g.length <= 12 && !/[、，,；;：:。]|包含|内设/.test(g)) tags.push(g);
+    else notes.push(g);
+  });
+  return { main: main.trim(), tags: tags, notes: notes };
+}
+var WARN = /中外合作|学费|不招|色盲|色弱|只招|仅招|限|要求/;
+
+function mjSchoolName(code){
+  for (var i=0;i<rows.length;i++){ if (rows[i].code === code) return rows[i].name; }
+  return "";
+}
+
+function openMajors(code, push){
+  clearTimeout(mjHideTimer);
+  var wasOpen = mjState.open;
+  mjState.open = true; mjState.code = code; mjState.tab = state.cat;
+  mjState.name = mjSchoolName(code);
+  var token = ++mjState.token;
+  mjData = {};
+  elMjQ.value = "";
+
+  $("mj-title").textContent = mjState.name || ("院校代码 " + code);
+  $("mj-code").textContent = mjState.name ? "院校代码 " + code : "";
+  $("mj-eyebrow").textContent = state.year + " 年 · 招生专业";
+  elMjStats.className = "mj-stats none"; elMjStats.textContent = "";
+  elMjTabs.innerHTML = ""; elMjFilter.hidden = true;
+  elMjBody.innerHTML = '<div class="mj-msg">正在读取专业数据…</div>';
+
+  if (!wasOpen){
+    mjReturnFocus = document.activeElement;
+    elScrim.hidden = false; elMj.hidden = false;
+    elMj.style.transform = "";
+    document.documentElement.classList.add("mj-lock");
+    void elMj.offsetWidth;            // 先渲染再加 .on，才有滑入动画
+    elScrim.classList.add("on"); elMj.classList.add("on");
+    setTimeout(function(){ elMj.focus({preventScroll:true}); }, 30);
+  }
+  if (push){ state.m = code; writeURL(false); mjState.pushed = true; }
+  else { mjState.pushed = !!(history.state && history.state.mj); setTitle(); }
+
+  var year = state.year;
+  Promise.all(CONFIG.CATEGORIES.map(function(c){
+    return getMajors(year, c).then(function(d){
+      var s = d.schools[code];
+      if (s && !mjState.name){ mjState.name = s.n; }
+      return s ? { list: s.m, plans: d.plans } : { list: [], plans: d.plans };
+    }, function(){ return null; });   // null = 这一科类的专业文件还没上传
+  })).then(function(res){
+    if (token !== mjState.token) return;
+    CONFIG.CATEGORIES.forEach(function(c, i){ mjData[c] = res[i]; });
+    if (mjState.name){
+      $("mj-title").textContent = mjState.name;
+      $("mj-code").textContent = "院校代码 " + code;
+      setTitle();
+    }
+    var cur = mjData[mjState.tab];
+    if (!cur || !cur.list.length){
+      var alt = CONFIG.CATEGORIES.filter(function(c){ return mjData[c] && mjData[c].list.length; })[0];
+      if (alt) mjState.tab = alt;
+    }
+    renderMjTabs(); renderMjTab();
+  });
+}
+
+function closeMajors(fromPop){
+  if (!mjState.open) return;
+  if (!fromPop && mjState.pushed){ history.back(); return; }   // 交给 popstate 关，返回键与关闭按钮行为一致
+  mjState.open = false; mjState.pushed = false; mjState.token++;
+  elScrim.classList.remove("on"); elMj.classList.remove("on");
+  elMj.style.transform = "";
+  document.documentElement.classList.remove("mj-lock");
+  mjHideTimer = setTimeout(function(){ elScrim.hidden = true; elMj.hidden = true; }, 280);
+  if (!fromPop){ state.m = null; writeURL(true); } else setTitle();
+  if (mjReturnFocus && document.contains(mjReturnFocus)){
+    try { mjReturnFocus.focus({preventScroll:true}); } catch(e){}
+  }
+}
+
+function renderMjTabs(){
+  elMjTabs.innerHTML = "";
+  CONFIG.CATEGORIES.forEach(function(c){
+    var d = mjData[c];
+    var n = d ? d.list.length : null;
+    var b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(c === mjState.tab));
+    b.innerHTML = esc(KELEI[c] || c) + '<span class="ct">' + (n == null ? "—" : n) + '</span>';
+    if (!n) b.disabled = true;
+    b.addEventListener("click", function(){
+      if (mjState.tab === c) return;
+      mjState.tab = c; elMjQ.value = ""; renderMjTabs(); renderMjTab(); elMjBody.scrollTop = 0;
+    });
+    elMjTabs.appendChild(b);
+  });
+}
+
+function renderMjStats(){
+  var cat = mjState.tab, code = mjState.code, token = mjState.token, y = state.year;
+  elMjStats.className = "mj-stats none"; elMjStats.textContent = "";
+  getScores(y, cat).then(function(d){
+    if (token !== mjState.token || cat !== mjState.tab) return;
+    var r = null;
+    for (var i=0;i<d.rows.length;i++){ if (d.rows[i].code === code){ r = d.rows[i]; break; } }
+    if (!r){
+      elMjStats.textContent = y + " 年" + cat + "未查到该校的录取分数线记录";
+      return;
+    }
+    var v = function(x){ return x != null && x !== "" ? esc(x) : "—"; };
+    elMjStats.className = "mj-stats";
+    elMjStats.innerHTML =
+      '<div><dt>' + esc(cat) + '最低分</dt><dd class="hi">' + v(r.scoreRaw) + '</dd></div>' +
+      '<div><dt>最低排位</dt><dd>' + v(r.rankRaw) + '</dd></div>' +
+      '<div><dt>录取人数</dt><dd>' + v(r.enroll) + '</dd></div>';
+  }, function(){
+    if (token !== mjState.token || cat !== mjState.tab) return;
+    elMjStats.textContent = y + " 年" + cat + "分数线暂未收录";
+  });
+}
+
+function renderMjTab(){
+  renderMjStats();
+  var d = mjData[mjState.tab];
+  if (!d){
+    var none = CONFIG.CATEGORIES.every(function(c){ return !mjData[c]; });
+    elMjFilter.hidden = true;
+    elMjBody.innerHTML = '<div class="mj-msg"><b>' + state.year + ' 年专业数据暂未收录</b>' +
+      (none ? '我们正在整理，稍后再来看看。' : '这一科类的专业目录还在整理中。') + '</div>';
+    return;
+  }
+  if (!d.list.length){
+    elMjFilter.hidden = true;
+    elMjBody.innerHTML = '<div class="mj-msg"><b>该校 ' + state.year + ' 年无' + esc(KELEI[mjState.tab]) + '招生专业</b>可切换到其他科类查看。</div>';
+    return;
+  }
+  elMjFilter.hidden = d.list.length <= 10;
+  elMjQ.placeholder = "在 " + d.list.length + " 个专业中筛选";
+  renderMjList();
+}
+
+function renderMjList(){
+  var d = mjData[mjState.tab];
+  if (!d) return;
+  var q = elMjQ.value.trim(), nq = norm(q);
+  var groups = {}, order = [];
+  d.list.forEach(function(m){
+    if (nq && norm(m[1]).indexOf(nq) < 0 && m[0].indexOf(nq) < 0) return;
+    var g = d.plans[m[2]] || "其他";
+    if (!groups[g]){ groups[g] = []; order.push(g); }
+    groups[g].push(m);
+  });
+  if (!order.length){
+    elMjBody.innerHTML = '<div class="mj-msg"><b>没有匹配的专业</b>换个关键词试试。</div>';
+    return;
+  }
+  var html = order.map(function(g){
+    var items = groups[g].map(function(m){
+      var p = parseMajor(m[1]);
+      var tags = p.tags.map(function(t){
+        return '<span class="mj-tag' + (WARN.test(t) ? ' warn' : '') + '">' + highlight(t, q) + '</span>';
+      }).join("");
+      var notes = p.notes.map(function(n){
+        var long = n.length > 64;
+        return '<p class="mj-note' + (long ? ' clamp' : '') + '">' + highlight(n, q) + '</p>' +
+               (long ? '<button type="button" class="mj-more">展开全文</button>' : '');
+      }).join("");
+      return '<li class="mj-item"><span class="mj-no">' + esc(m[0]) + '</span><div>' +
+        '<div class="mj-name"><span>' + highlight(p.main, q) + '</span>' + tags +
+        (m[3] ? ' <span class="mj-tag">' + esc(m[3]) + '</span>' : '') + '</div>' +
+        notes + '</div></li>';
+    }).join("");
+    return '<section class="mj-group"><h3>' + esc(g) + '<b>' + groups[g].length + '</b></h3><ul class="mj-list">' + items + '</ul></section>';
+  }).join("");
+  elMjBody.innerHTML = html;
+}
+
+/* 抽屉事件 */
+elMjBody.addEventListener("click", function(e){
+  var b = e.target.closest(".mj-more");
+  if (!b) return;
+  var note = b.previousElementSibling;
+  var on = note.classList.toggle("clamp");
+  b.textContent = on ? "展开全文" : "收起";
+});
+var mjDeb;
+elMjQ.addEventListener("input", function(){ clearTimeout(mjDeb); mjDeb = setTimeout(function(){ renderMjList(); elMjBody.scrollTop = 0; }, 80); });
+$("mj-close").addEventListener("click", function(){ closeMajors(false); });
+elScrim.addEventListener("click", function(){ closeMajors(false); });
+document.addEventListener("keydown", function(e){
+  if (!mjState.open) return;
+  if (e.key === "Escape"){ e.preventDefault(); closeMajors(false); return; }
+  if (e.key !== "Tab") return;
+  // 焦点留在抽屉内
+  var f = Array.prototype.filter.call(
+    elMj.querySelectorAll('button:not([disabled]),input:not([hidden]),a[href],[tabindex="0"]'),
+    function(el){ return el.offsetParent !== null; });
+  if (!f.length) return;
+  var first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+  else if (!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+  else if (!elMj.contains(document.activeElement)){ first.focus(); e.preventDefault(); }
+});
+
+/* 手机：按住顶部往下拖可关闭 */
+(function(){
+  var startY = 0, dy = 0, t0 = 0, dragging = false;
+  function down(e){
+    if (!window.matchMedia("(max-width:700px)").matches) return;
+    if (e.target.closest("button,a,input")) return;
+    dragging = true; startY = e.clientY; dy = 0; t0 = Date.now();
+    elMj.classList.add("dragging");
+    try { e.target.setPointerCapture(e.pointerId); } catch(err){}
+  }
+  function move(e){
+    if (!dragging) return;
+    dy = Math.max(0, e.clientY - startY);
+    elMj.style.transform = "translateY(" + dy + "px)";
+  }
+  function up(){
+    if (!dragging) return;
+    dragging = false; elMj.classList.remove("dragging");
+    var fast = dy > 40 && dy / Math.max(1, Date.now() - t0) > 0.6;
+    if (dy > 110 || fast){ closeMajors(false); }
+    else elMj.style.transform = "";
+  }
+  [$("mj-grip"), $("mj-top")].forEach(function(el){
+    el.addEventListener("pointerdown", down);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+  });
+})();
+
+/* 表格：点院校名或整行打开 */
+elRows.addEventListener("click", function(e){
+  var tr = e.target.closest("tr.has-mj");
+  if (!tr) return;
+  openMajors(tr.dataset.code, true);
+});
+
+/* ============================================================
    事件
    ============================================================ */
 document.querySelectorAll("#cat-group button").forEach(function(b){
@@ -873,7 +1358,14 @@ document.querySelectorAll("th.sortable").forEach(function(th){
 });
 
 window.addEventListener("popstate", function(){
-  readURL(); syncControls(); load();
+  var before = [state.year, state.cat, state.q, state.sortKey, state.sortDir].join("|");
+  readURL();
+  var after = [state.year, state.cat, state.q, state.sortKey, state.sortDir].join("|");
+  if (before !== after){ syncControls(); load(); }   // 只是开关专业抽屉时不重绘表格，框内滚动位置保持不动
+  if (!state.m){ closeMajors(true); }
+  else if (!mjState.open || mjState.code !== state.m){
+    if (hasMajors(state.year)) openMajors(state.m, false);
+  }
 });
 
 /* ============================================================
@@ -881,6 +1373,8 @@ window.addEventListener("popstate", function(){
    ============================================================ */
 function boot(years){
   if (!state.year || years.indexOf(state.year) < 0) state.year = years[0];
+  if (state.m && !hasMajors(state.year)) state.m = null;
+  bootM = state.m;
   buildYears(years);
   syncControls();
   writeURL(true);
@@ -903,6 +1397,7 @@ function boot(years){
   var a = $("cta-link"); if (a) a.href = url;
   var b = $("empty-course"); if (b) b.href = CONFIG.COURSE_URL + (CONFIG.UTM ? CONFIG.UTM + "&pos=empty" : "");
   var f = $("foot-course"); if (f) f.href = CONFIG.COURSE_URL + (CONFIG.UTM ? CONFIG.UTM + "&pos=footer" : "");
+  var g = $("mj-course"); if (g) g.href = CONFIG.COURSE_URL + (CONFIG.UTM ? CONFIG.UTM + "&pos=majors" : "");
 })();
 
 // 轻度防复制：只挡随手全选，挡不住查看源码（数据必须留在 HTML 里才有 SEO）
@@ -911,12 +1406,16 @@ if (CONFIG.LOCK_COPY){
   elWrap.style.userSelect = "none";
   elWrap.addEventListener("contextmenu", function(e){ e.preventDefault(); });
   elWrap.addEventListener("dragstart", function(e){ e.preventDefault(); });
+  elMjBody.style.webkitUserSelect = "none";
+  elMjBody.style.userSelect = "none";
+  elMjBody.addEventListener("contextmenu", function(e){ e.preventDefault(); });
 }
 
 readURL();
 fetch(CONFIG.MANIFEST, {cache:"force-cache"})
   .then(function(r){ return r.ok ? r.json() : null; })
   .then(function(m){
+    if (m && Array.isArray(m.majors)) majorYears = m.majors.map(Number);   // manifest 里写了 majors 就以它为准
     boot(m && Array.isArray(m.years) && m.years.length ? m.years.slice().sort(function(a,b){return b-a;}) : CONFIG.YEARS);
   })
   .catch(function(){ boot(CONFIG.YEARS); });
