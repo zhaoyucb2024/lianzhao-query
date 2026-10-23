@@ -792,7 +792,7 @@ function load(){
 
   show(elLoading, true); show(elTable, false); show(elEmpty, false); show(elError, false);
 
-  fetch(CONFIG.DATA_PATH + encodeURIComponent(state.year + "-" + state.cat) + ".json", {cache:"force-cache"})
+  fetch(CONFIG.DATA_PATH + encodeURIComponent(state.year + "-" + state.cat) + ".json")
     .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function(j){
       var d = prepare(j);
@@ -1045,11 +1045,12 @@ var mjHideTimer = null;
 function hasMajors(y){ return majorYears.indexOf(y) >= 0; }
 function idle(fn){ (window.requestIdleCallback || function(f){ return setTimeout(f, 600); })(fn); }
 
-function getMajors(year, cat){
+function getMajors(year, cat, fresh){
   var key = year + "-" + cat;
-  if (mjCache.has(key)) return mjCache.get(key);
+  if (!fresh && mjCache.has(key)) return mjCache.get(key);
   var url = CONFIG.DATA_PATH + encodeURIComponent(CONFIG.MAJOR_FILE.replace("{year}", year).replace("{cat}", cat));
-  var p = fetch(url, {cache:"force-cache"})
+  // 不用 force-cache：文件刚上传、GitHub Pages 还没部署好时拿到的 404 会被浏览器一直沿用
+  var p = fetch(url, fresh ? {cache:"reload"} : {})
     .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function(j){ return { schools: j.schools || {}, plans: j.plans || ["普通类","艺术类","体育类"] }; });
   p.catch(function(){ mjCache.delete(key); });
@@ -1059,7 +1060,7 @@ function getMajors(year, cat){
 function getScores(year, cat){
   var key = year + "-" + cat;
   if (cache.has(key)) return Promise.resolve(cache.get(key));
-  return fetch(CONFIG.DATA_PATH + encodeURIComponent(key) + ".json", {cache:"force-cache"})
+  return fetch(CONFIG.DATA_PATH + encodeURIComponent(key) + ".json")
     .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
     .then(function(j){ var d = prepare(j); cache.set(key, d); return d; });
 }
@@ -1096,7 +1097,7 @@ function mjSchoolName(code){
   return "";
 }
 
-function openMajors(code, push){
+function openMajors(code, push, fresh){
   clearTimeout(mjHideTimer);
   var wasOpen = mjState.open;
   mjState.open = true; mjState.code = code; mjState.tab = state.cat;
@@ -1126,7 +1127,7 @@ function openMajors(code, push){
 
   var year = state.year;
   Promise.all(CONFIG.CATEGORIES.map(function(c){
-    return getMajors(year, c).then(function(d){
+    return getMajors(year, c, fresh).then(function(d){
       var s = d.schools[code];
       if (s && !mjState.name){ mjState.name = s.n; }
       return s ? { list: s.m, plans: d.plans } : { list: [], plans: d.plans };
@@ -1209,8 +1210,10 @@ function renderMjTab(){
   if (!d){
     var none = CONFIG.CATEGORIES.every(function(c){ return !mjData[c]; });
     elMjFilter.hidden = true;
-    elMjBody.innerHTML = '<div class="mj-msg"><b>' + state.year + ' 年专业数据暂未收录</b>' +
-      (none ? '我们正在整理，稍后再来看看。' : '这一科类的专业目录还在整理中。') + '</div>';
+    elMjBody.innerHTML = '<div class="mj-msg"><b>' + state.year + ' 年' + (none ? '' : esc(KELEI[mjState.tab])) + '专业数据没有读取成功</b>' +
+      '可能是网络不稳定或数据刚更新，点下面重新加载一次。' +
+      '<div style="margin-top:14px"><button type="button" class="linkbtn" id="mj-retry">重新加载</button></div></div>';
+    $("mj-retry").addEventListener("click", function(){ openMajors(mjState.code, false, true); });
     return;
   }
   if (!d.list.length){
@@ -1412,7 +1415,7 @@ if (CONFIG.LOCK_COPY){
 }
 
 readURL();
-fetch(CONFIG.MANIFEST, {cache:"force-cache"})
+fetch(CONFIG.MANIFEST)
   .then(function(r){ return r.ok ? r.json() : null; })
   .then(function(m){
     if (m && Array.isArray(m.majors)) majorYears = m.majors.map(Number);   // manifest 里写了 majors 就以它为准
